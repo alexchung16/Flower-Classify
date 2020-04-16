@@ -24,8 +24,6 @@ dataset_dir = pathlib.Path(original_dataset_dir / 'flower_photo')
 base_dir = pathlib.Path(original_dataset_dir / 'flower_split')
 
 
-
-
 def image_train_val_split(src_img_dir, dst_img_dir, split_ratio=0.8, is_balance=False, img_type='jpg'):
     """
 
