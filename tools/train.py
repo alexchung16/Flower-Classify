@@ -28,8 +28,6 @@ config.gpu_options.allow_growth = True
 keras.backend.set_session(tf.Session(config=config))
 
 
-
-
 # image generation
 def image_generate(train_dir, val_dir, batch_size=16, target_size=(150, 150), classes_name=None, class_model='categorical'):
     """
@@ -84,6 +82,45 @@ def show_batch(image_batch, label_batch, class_names):
     plt.show()
 
 
+def vgg16_finetune_net():
+    """
+
+    :return:
+    """
+    target_height, target_width = cfgs.TARGET_SIZE
+    conv_base = VGG16(weights='imagenet', include_top=False, input_shape=(target_height, target_width, 3))
+    model = models.Sequential()
+    model.add(conv_base)
+    # flatten layer
+    model.add(layers.Flatten())
+    model.add(layers.Dense(units=256, activation='relu'))
+    model.add(layers.Dropout(rate=0.5))
+    model.add(layers.Dense(units=len(cfgs.CLASS_NAMES), activation='sigmoid'))
+
+
+    # frozen conv_base before block_conv1 ~ bloack_conv4
+    model.trainable = True
+    trainable_status = False
+    for layer in conv_base.layers:
+        if layer.name == 'block5_conv1':
+            trainable_status = True
+        layer.trainable = trainable_status
+
+    return model
+
+
+def train(train_data, val_data):
+
+    vgg_model = vgg16_finetune_net()
+    vgg_model.compile(optimizer=optimizers.RMSprop(lr=1e-5),
+                      loss=losses.categorical_crossentropy,
+                      metrics=['acc', 'mse'])
+    history = vgg_model.fit_generator(generator=train_data,
+                                      steps_per_epoch=100,
+                                      epochs=100,
+                                      validation_data=val_data,
+                                      validation_steps=50)
+
 def main():
     train_generator, val_generator = image_generate(train_dir=cfgs.TRAIN_DATA_DIR,
                                                     val_dir=cfgs.VAL_DATA_DIR,
@@ -101,15 +138,8 @@ def main():
     show_batch(train_img, train_label, class_names)
     show_batch(val_img, val_label, class_names)
 
-    # show data
-    # plt.imshow(train_img[0])
-    # plt.imshow(val_img[0])
-    # plt.show()
 
-
-
-
-
+    history = train(train_generator, val_generator)
 
 
 
