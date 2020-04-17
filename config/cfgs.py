@@ -14,13 +14,22 @@ import os
 import glob
 import pathlib
 import numpy as np
+import tensorflow as tf
+import keras
+import time
 
-
+# tensorflow backend config
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+keras.backend.set_session(tf.Session(config=config))
 # -------------------------------system config------------------------------------------
 # model path
-MODEL_PATH = os.path.join('../output', 'model', 'fine_vgg.h5')
+MODEL_PATH = os.path.join('../output', 'model', 'fine_vgg_{0}.h5'.format(time.time()))
 # train data path
 DATA_PATH = os.path.join('../output', 'data', 'fine_vgg.pkl')
+# log path
+LOG_PATH = os.path.join('../output', 'logs')
+
 # data path
 # origin dataset
 ORIGINAL_DATASET_DIR = '../data'
@@ -31,6 +40,11 @@ BASE_DIR = os.path.join(ORIGINAL_DATASET_DIR, 'flower_split')
 TRAIN_DATA_DIR = os.path.join(BASE_DIR, 'train')
 # validation dataset
 VAL_DATA_DIR = os.path.join(BASE_DIR, 'val')
+
+INFERENCE_DATA_PATH = os.path.join('../tools', 'demos')
+INFERENCE_OUTPUT_PATH = os.path.join('../tools', 'inference_result')
+
+
 
 
 # -----------------------------train config------------------------------------------

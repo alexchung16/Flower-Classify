@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 def predict(model, img_batch=None):
     """"""
     predict_array = model.predict(img_batch)
+    # squeeze batch dimension
     predict_array = np.squeeze(predict_array, axis=0)
     predict_label = np.argmax(predict_array)
     predict_prob = predict_array[predict_label]
@@ -77,6 +78,7 @@ if __name__ == "__main__":
         predict_label, predict_prob = predict(model=model, img_batch=img_batch)
         print('image_sample:{0},\tpredict result: {1}\t predict probability:{2}'.
               format(img_path, cfgs.CLASS_NAMES[predict_label], predict_prob) )
+
 
 
 
