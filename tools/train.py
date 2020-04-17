@@ -20,13 +20,11 @@ from keras.applications import VGG16
 from keras import models, layers
 from keras import optimizers, losses
 from keras_preprocessing.image import ImageDataGenerator
+from keras.callbacks import ModelCheckpoint, EarlyStopping, LearningRateScheduler, ReduceLROnPlateau, TensorBoard
+
 
 import config.cfgs as cfgs
 
-# tensorflow backend config
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-keras.backend.set_session(tf.Session(config=config))
 
 
 # image generation
@@ -143,6 +141,35 @@ def vgg16_finetune_net():
     return model
 
 
+def get_callback():
+    """
+    get callback list
+    :param model:
+    :return:
+    """
+    # check and create log path and model path
+    if os.path.exists(cfgs.LOG_PATH) is False:
+        os.makedirs(cfgs.LOG_PATH)
+        print('Successful create path {0}'.format(cfgs.LOG_PATH))
+    if os.path.exists(os.path.dirname(cfgs.MODEL_PATH)) is False:
+        os.makedirs(os.path.dirname(cfgs.MODEL_PATH))
+        print('Successful create path {0}'.format(os.path.dirname(cfgs.MODEL_PATH)))
+
+    # callback parameter
+    # early_stopping = EarlyStopping(monitor='acc',
+    #                                min_delta=1.)
+    # model_checkpoint = ModelCheckpoint(filepath=cfgs.MODEL_PATH,
+    #                                    monitor='val_loss',
+    #                                    save_best_only=True)
+
+    tensorboard = TensorBoard(log_dir=cfgs.LOG_PATH,
+                              histogram_freq=1)
+
+    callback = [tensorboard]
+    return callback
+
+
+
 def train(train_data, val_data):
 
     vgg_model = vgg16_finetune_net()
@@ -152,8 +179,10 @@ def train(train_data, val_data):
     history = vgg_model.fit_generator(generator=train_data,
                                       steps_per_epoch=cfgs.STEP_PER_EPOCH,
                                       epochs=cfgs.EPOCH,
-                                      validation_data=val_data,
-                                      validation_steps=cfgs.VAL_STEP)
+                                      validation_data=val_data.next(),
+                                      validation_steps=cfgs.VAL_STEP,
+                                      callbacks=get_callback())
+
     return vgg_model, history
 
 def main():
