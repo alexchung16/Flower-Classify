@@ -18,9 +18,9 @@ import numpy as np
 
 # -------------------------------system config------------------------------------------
 # model path
-MODEL_PATH = os.path.join('../output', 'model')
+MODEL_PATH = os.path.join('../output', 'model', 'fine_vgg.h5')
 # train data path
-DATA_PATH = os.path.join('../output', 'data')
+DATA_PATH = os.path.join('../output', 'data', 'fine_vgg.pkl')
 # data path
 # origin dataset
 ORIGINAL_DATASET_DIR = '../data'
@@ -34,9 +34,11 @@ VAL_DATA_DIR = os.path.join(BASE_DIR, 'val')
 
 
 # -----------------------------train config------------------------------------------
-BATCH_SIZE=32
-EPOSH = 100
+BATCH_SIZE = 32
+EPOCH = 60
 TARGET_SIZE = (150, 150)
-TRAIN_SAMPLE_COUNT = len(list(pathlib.Path(TRAIN_DATA_DIR).glob('.jpg')))
+TRAIN_SAMPLE_COUNT = len(list(pathlib.Path(TRAIN_DATA_DIR).glob('*/*.jpg')))
+VAL_SAMPLE_COUNT = len(list(pathlib.Path(VAL_DATA_DIR).glob('*/*.jpg')))
 STEP_PER_EPOCH = np.ceil(TRAIN_SAMPLE_COUNT / BATCH_SIZE)
+VAL_STEP = np.ceil(VAL_SAMPLE_COUNT / BATCH_SIZE)
 CLASS_NAMES = [file.name for file in pathlib.Path(TRAIN_DATA_DIR).iterdir() if file.is_dir()]

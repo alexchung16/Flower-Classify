@@ -13,6 +13,7 @@
 import os
 import numpy as np
 import keras
+import pickle
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from keras.applications import VGG16
@@ -81,6 +82,39 @@ def show_batch(image_batch, label_batch, class_names):
         plt.axis('off')
     plt.show()
 
+def saveModel(model, model_path):
+    """
+    save model
+    :param model: model
+    :param model_name: model file name
+    :return:
+    """
+    try:
+        if os.path.exists(os.path.dirname(cfgs.MODEL_PATH)) is False:
+            os.makedirs(os.path.dirname(cfgs.MODEL_PATH))
+            print('{0} has been created'.format(model_path))
+        # save model
+        model.save(model_path)
+        print('Successful save model to {0}'.format(model_path))
+    except Exception as e:
+        raise Exception('Failed save model due to {0}'.format(e))
+
+def seveData(data, data_path):
+    """
+    save data
+    :param obj: object
+    :param path: save path
+    :return:
+    """
+
+    try:
+        if os.path.exists(os.path.dirname(cfgs.DATA_PATH)) is False:
+            os.makedirs(os.path.dirname(cfgs.DATA_PATH))
+        with open(data_path, 'wb') as f:
+            pickle.dump(data, f)
+        print('Successful save data to {0}'.format(data_path))
+    except Exception as e:
+        print('Failed save metric data due to {0}'.format(e))
 
 def vgg16_finetune_net():
     """
@@ -114,12 +148,13 @@ def train(train_data, val_data):
     vgg_model = vgg16_finetune_net()
     vgg_model.compile(optimizer=optimizers.RMSprop(lr=1e-5),
                       loss=losses.categorical_crossentropy,
-                      metrics=['acc', 'mse'])
+                      metrics=['acc'])
     history = vgg_model.fit_generator(generator=train_data,
-                                      steps_per_epoch=100,
-                                      epochs=100,
+                                      steps_per_epoch=cfgs.STEP_PER_EPOCH,
+                                      epochs=cfgs.EPOCH,
                                       validation_data=val_data,
-                                      validation_steps=50)
+                                      validation_steps=cfgs.VAL_STEP)
+    return vgg_model, history
 
 def main():
     train_generator, val_generator = image_generate(train_dir=cfgs.TRAIN_DATA_DIR,
@@ -139,13 +174,14 @@ def main():
     show_batch(val_img, val_label, class_names)
 
 
-    history = train(train_generator, val_generator)
+    model, history = train(train_generator, val_generator)
 
+    saveModel(model, cfgs.MODEL_PATH)
+    seveData(history.history, cfgs.DATA_PATH)
 
 
 if __name__ == "__main__":
     main()
-
 
 
 
