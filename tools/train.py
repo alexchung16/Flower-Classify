@@ -80,7 +80,7 @@ def show_batch(image_batch, label_batch, class_names):
         plt.axis('off')
     plt.show()
 
-def saveModel(model, model_path):
+def save_model(model, model_path):
     """
     save model
     :param model: model
@@ -97,7 +97,7 @@ def saveModel(model, model_path):
     except Exception as e:
         raise Exception('Failed save model due to {0}'.format(e))
 
-def seveData(data, data_path):
+def seve_data(data, data_path):
     """
     save data
     :param obj: object
@@ -205,8 +205,8 @@ def main():
 
     model, history = train(train_generator, val_generator)
 
-    saveModel(model, cfgs.MODEL_PATH)
-    seveData(history.history, cfgs.DATA_PATH)
+    save_model(model, cfgs.MODEL_PATH)
+    seve_data(history.history, cfgs.DATA_PATH)
 
 
 if __name__ == "__main__":
